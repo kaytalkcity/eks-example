@@ -1,0 +1,128 @@
+Create AWS Managed Prometheus service and Grafana Service
+==========================================================
+Attached to this mail is a zip file amp_amg_terraform.zip
+1. Unzip the file amp_amg_terraform.zip 
+
+2. It contains three terraform files to deploy the AWS Managed Prometheus service and Grafana Service
+
+3. Rename the folder are needed, 
+Note: The name of the folder will be use to name the service created
+
+eks-infra-monitor-
+                  |_main.tf
+                  |_variable.tf
+                  |_version.tf
+
+4. Upload to the appropriate Git repository for your CICD pipeline to execute
+
+
+Setting up the AWS Distro for OpenTelemetry (ADOT) Collector
+=============================================================
+Note:   AWS Distro for OpenTelemetry (ADOT) Collector only collect metrics from the EKS cluster. To collect metric for pods, the application developer have make changes to the application running on the pods to send the metrics
+
+1. Setup IAM Roles for Service Account (IRSA) for OpenTelemetry 
+
+eksctl create iamserviceaccount --name amp-iamproxy-ingest-role --namespace prometheus --cluster eks-shared-0 --attach-policy-arn arn:aws:iam::aws:policy/AmazonPrometheusRemoteWriteAccess --approve --override-existing-serviceaccounts
+
+
+
+2. Install Certificate Manager
+2a. Download  template file from https://github.com/cert-manager/cert-manager/releases/download/v1.8.2/cert-manager.yaml
+
+mkdir cert-manager
+cd cert-manager
+curl -O https://github.com/cert-manager/cert-manager/releases/download/v1.8.2/cert-manager.yaml
+
+2b. Upload the 'cert-manager' folder to Git repository  
+#git init
+#git add README.md
+#git commit -m "cert-manager"
+#git branch -M main
+#git remote add origin https://github.com/<GITHUB_USERNAME>/<REPO NAME>.git
+#git push -u origin main
+
+2c.  Configure the application and link to the git repo created in 2b.
+
+argocd app create cert-manager --repo https://github.com/<GITHUB_USERNAME>/<REPO NAME>.git --path cert-manager --dest-server https://kubernetes.default.svc 
+argocd app get cert-manager
+argocd app sync cert-manager
+
+
+3. Grant permissions to Amazon EKS add-ons to install ADOT
+3a. Download  the addons-otel-permissions template file from  https://amazon-eks.s3.amazonaws.com/docs/addons-otel-permissions.yaml
+
+mkdir addons-otel-permissions
+cd  addons-otel-permissions
+curl -O https://amazon-eks.s3.amazonaws.com/docs/addons-otel-permissions.yaml
+
+3b. Upload the 'addons-otel-permissions' folder to Git repository  
+
+3c.  Configure the application and link to the git repo created in 3b.
+
+argocd app create addons-otel-permissions --repo  https://github.com/<GITHUB_USERNAME>/<REPO NAME>.git --path addons-otel-permissions --dest-server https://kubernetes.default.svc 
+argocd app get addons-otel-permissions
+argocd app sync addons-otel-permissions
+
+
+4. Install the ADOT Add-on
+4a. Run the aws cli command
+
+CLUSTER_NAME=eks-shared-0
+aws eks create-addon --addon-name adot --addon-version v0.45.0-eksbuild.1 --cluster-name $CLUSTER_NAME                                                          
+
+
+4b.Verify Add-On installation. Wait for 30 seconds and execute the following command. You should see "ACTIVE" as result indicating that the add-on is installed successfully.
+
+aws eks describe-addon --addon-name adot --cluster-name $CLUSTER_NAME | jq .addon.status
+
+4c. Install the OTel Collector Custom Resource Definition(CRD)
+Note: You need to have creatd the Amazon Managed Prometheus Service before executing this step
+
+AWS_REGION=us-east-1
+CLUSTER_NAME=<EKS_CLUSTER_NAME>
+WORKSPACE_ID=$(aws amp list-workspaces --alias $CLUSTER_NAME | jq .workspaces[0].workspaceId -r)
+AMP_ENDPOINT_URL=$(aws amp describe-workspace --workspace-id $WORKSPACE_ID | jq .workspace.prometheusEndpoint -r)
+AMP_REMOTE_WRITE_URL=${AMP_ENDPOINT_URL}api/v1/remote_write
+mkdir otel-collector-crd
+cd otel-collector-crd
+curl -O https://raw.githubusercontent.com/aws-samples/one-observability-demo/main/PetAdoptions/cdk/pet_stack/resources/otel-collector-prometheus.yaml
+sed -i -e s/AWS_REGION/$AWS_REGION/g otel-collector-prometheus.yaml
+sed -i -e s^AMP_WORKSPACE_URL^$AMP_REMOTE_WRITE_URL^g otel-collector-prometheus.yaml
+
+
+4d. Upload the 'otel-collector-prometheus' folder to Git repository  
+
+4e. Configure the application and link to the git repo created in 4d
+
+kubectl create namespace prometheus
+argocd app create otel-collector-crd --repo https://github.com/<GITHUB_USERNAME>/<REPO NAME>.git --path otel-collector-crd --dest-server https://kubernetes.default.svc --dest-namespace prometheus 
+argocd app get otel-collector-crd
+argocd app sync otel-collector-crd
+
+
+Setting up Prometheus server 
+============================
+Attached to this mail is a zip file  eks-monitor.zip. 
+
+1. Unzip the file eks-monitor.zip. 
+
+2. It contains two files
+
+eks-monitor-
+            |_prometheus_argoscd.yaml
+            |_setup.sh
+
+3. Setup IAM Roles for Service Account (IRSA) for Prometheus
+
+cd eks-monitor
+AWS_REGION=<AWS_REGION>
+CLUSTER_NAME=<EKS_CLUSTER_NAME>
+PROMETHEUS_WORKSPACE_ID=<AMAZON_PROMETHEUS_WORKSPACE_ID>
+sed -i -e s/AWS_REGION/$AWS_REGION/g setup.sh
+sed -i -e s/CLUSTER_NAME/$CLUSTER_NAME/g setup.sh
+sed -i -e s/PROMETHEUS_WORKSPACE_ID/$PROMETHEUS_WORKSPACE_ID/g setup.sh
+./setup
+
+4. Configure the application for prometheus using yaml template prometheus_argoscd.yaml
+
+kubectl apply -f ./prometheus_argoscd.yaml
