@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: prometheus
+  namespace: argocd
+spec:
+  destination:
+    name: ''
+    namespace: prometheus
+    server: 'https://kubernetes.default.svc'
+  source:
+    path: ''
+    repoURL: 'https://prometheus-community.github.io/helm-charts'
+    targetRevision: 15.11.0
+    chart: prometheus
+    helm:
+      parameters:
+        - name: alertmanager.persistentVolume.size
+          value: 5Gi
+        - name: alertmanager.persistentVolume.storageClass
+          value: gp2
+        - name: server.persistentVolume.storageClass
+          value: gp2
+  project: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
