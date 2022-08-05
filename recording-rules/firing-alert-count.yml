@@ -9,5 +9,8 @@ spec:
   groups:
     - name: AlertManager
       rules:
-        - record: firing_alerts_count
-          expr: count(ALERTS{alertstate="firing"})
+        - record: instance_path:requests:rate5m
+          expr: rate(requests_total{job="myjob"}[5m])
+        
+        - record: path:requests:rate5m
+          expr: sum without (instance)(instance_path:requests:rate5m{job="myjob"})

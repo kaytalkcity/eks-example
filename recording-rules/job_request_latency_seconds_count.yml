@@ -1,0 +1,15 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: firing-alerts-count
+  namespace: argocd
+  labels:
+    release: prometheus
+spec:
+  groups:
+    - name: AlertManager
+      rules:
+        # Calculating the average query rate across instances and paths is done using the avg() function:
+
+        - record: job:request_latency_seconds_count:avg_rate5m
+          expr: avg without (instance, path)(instance:request_latency_seconds_count:rate5m{job="myjob"})

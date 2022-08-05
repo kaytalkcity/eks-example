@@ -1,0 +1,30 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: firing-alerts-count
+  namespace: argocd
+  labels:
+    release: prometheus
+spec:
+  groups:
+    - name: AlertManager
+      rules:
+        # Calculating average latency over a time period from a Summary:
+
+        - record: instance_path:request_latency_seconds_count:rate5m
+          expr: rate(request_latency_seconds_count{job="myjob"}[5m])
+        
+        - record: instance_path:request_latency_seconds_sum:rate5m
+          expr: rate(request_latency_seconds_sum{job="myjob"}[5m])
+        
+        - record: instance_path:request_latency_seconds:mean5m
+          expr: |2
+              instance_path:request_latency_seconds_sum:rate5m{job="myjob"}
+            /
+              instance_path:request_latency_seconds_count:rate5m{job="myjob"}
+        # Aggregate up numerator and denominator, then divide.
+        - record: path:request_latency_seconds:mean5m
+          expr: |2
+              sum without (instance)(instance_path:request_latency_seconds_sum:rate5m{job="myjob"})
+            /
+              sum without (instance)(instance_path:request_latency_seconds_count:rate5m{job="myjob"})
