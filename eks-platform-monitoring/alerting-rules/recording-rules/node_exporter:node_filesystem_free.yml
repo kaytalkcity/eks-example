@@ -1,0 +1,17 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: node_exporter:node_filesystem_free
+  namespace: argocd
+  labels:
+    release: prometheus
+spec:
+  groups:
+    - name: recording_rules
+      interval: 5s
+      rules:
+        - record: node_exporter:node_filesystem_free:fs_used_percents
+          expr: 100 - 100 * ( node_filesystem_free{mountpoint="/"} / node_filesystem_size{mountpoint="/"} )
+  
+        - record: node_exporter:node_memory_free:memory_used_percents
+          expr: 100 - 100 * (node_memory_MemFree / node_memory_MemTotal)

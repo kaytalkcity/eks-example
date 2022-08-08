@@ -1,0 +1,12 @@
+1. kubectl apply -f ./prometheus-grafana-datasource.yaml
+2. kubectl apply -f ./argocd_grafana.yaml
+** Please be patient while the chart is being deployed **
+
+    Get the application URL by running these commands:
+    echo "Browse to http://127.0.0.1:8080"
+    kubectl port-forward -n monitoring svc/grafana 8089:80
+    
+    
+3. Grafana login credential
+echo "User: admin"
+echo "Password: $(kubectl get secret grafana-prod --namespace monitoring -o jsonpath="{.data.admin-password}" | base64 --decode)"

@@ -1,0 +1,21 @@
+#2. Configure the application and link to your fork (replace the GITHUB_USERNAME):
+#Git repo URl : https://github.com/kaytalkcity/eks-example.git
+
+kubectl create namespace  example-app-2
+argocd app create alerting-rules --repo https://github.com/kaytalkcity/eks-example.git --path alerting-rules --dest-server https://kubernetes.default.svc 
+
+#3. Application is now setup, let’s have a look at the deployed application state:
+
+argocd app get alertrules
+
+
+#4. the application is in an OutOfSync status since the application has not been deployed yet. We are now going to sync our application:
+
+argocd app sync alertrules
+
+
+
+argocd app create recording-rules --repo https://github.com/kaytalkcity/eks-example.git --path recording-rules --dest-server https://kubernetes.default.svc 
+
+argocd app get recording-rules
+argocd app sync recording-rules

@@ -1,0 +1,105 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: grafana-prod
+  namespace: argocd
+spec:
+  destination:
+    name: ''
+    namespace: monitoring
+    server: 'https://kubernetes.default.svc'
+  source:
+    path: ''
+    repoURL: 'https://grafana.github.io/helm-charts'
+    targetRevision: 6.32.11
+    chart: grafana
+    helm:
+      valueFiles:
+        - values.yaml
+      values: |-
+        sidecar:
+          datasources:
+            enabled: true
+            label: grafana_datasource
+
+        dashboardProviders:
+          dashboardproviders.yaml:
+            apiVersion: 1
+            providers:
+            - name: 'default'
+              orgId: 1
+              folder: ''
+              type: file
+              disableDeletion: false
+              editable: true
+              options:
+                path: /var/lib/grafana/dashboards/default
+
+        dashboards:
+          default:
+            kubernetes-cluster-monitoring:
+              # Ref: https://grafana.com/dashboards/3119 - Kubernetes cluster monitoring (via Prometheus)
+              gnetId: 3119
+              revision: 2
+              datasource: Prometheus
+            kubernetes-cluster:
+              # Ref: https://grafana.com/dashboards/6417 - Kubernetes cluster 
+              gnetId: 6417
+              revision: 1
+              datasource: Prometheus
+            node-exporter:
+              gnetId: 1860
+              revision: 14
+              datasource: Prometheus
+            nginx-Ingress-controller:
+              gnetId: 9614
+              revision: 15
+              datasource: Prometheus
+            kubernetes-cluster-storage:
+              gnetId: 11454
+              revision: 1
+              datasource: Prometheus
+            kube-state-metrics-v2:
+              gnetId: 13332
+              revision: 2
+              datasource: Prometheus
+            alert-manager:
+              gnetId: 9578
+              revision: 2
+              datasource: Prometheus
+            kubernetes-cluster-autoscaler:
+              gnetId: 3831
+              revision: 1
+              datasource: Prometheus	
+            kubernetes=deployment-statefulset-daemonset:
+              gnetId: 8588
+              revision: 12
+              datasource: Prometheus
+            coredns:
+              gnetId: 5926
+              revision: 0
+              datasource: Prometheus
+            argocd:
+              gnetId: 14584
+              revision: 0
+              datasource: Prometheus
+            external-dns:
+              gnetId: 15038
+              revision: 0
+              datasource: Prometheus
+            argocd:
+              gnetId: 14584
+              revision: 0
+              datasource: Prometheus
+            pod-metrics:
+              gnetId: 747
+              revision: 1
+              datasource: Prometheus
+  project: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true
