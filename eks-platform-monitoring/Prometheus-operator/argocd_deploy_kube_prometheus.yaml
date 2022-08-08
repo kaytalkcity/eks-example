@@ -13,6 +13,8 @@ spec:
     repoURL: 'https://charts.bitnami.com/bitnami'
     targetRevision: 8.0.14
     chart: kube-prometheus
+    directory:
+      recurse: true
     helm:
       valueFiles:
         - values.yaml
@@ -787,3 +789,4 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - ApplyOutOfSyncOnly=true
+      - Replace=true
