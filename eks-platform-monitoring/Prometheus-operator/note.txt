@@ -1,0 +1,60 @@
+Installing the Chart
+
+Add the bitnami charts repo to Helm:
+
+$ helm repo add bitnami https://charts.bitnami.com/bitnami
+
+To install the chart with the release name my-release:
+
+$ helm install my-release bitnami/kube-prometheus
+
+The command deploys kube-prometheus on the Kubernetes cluster in the default configuration. The configuration section lists the parameters that can be configured during installation.
+
+    Tip: List all releases using helm list
+
+Uninstalling the Chart
+
+To uninstall/delete the my-release release:
+
+$ helm delete my-release
+
+The command removes all the Kubernetes components associated with the chart and deletes the release. Use the flag --purge to delete all history too.
+
+===================================
+
+CHART NAME: kube-prometheus
+CHART VERSION: 8.0.14
+APP VERSION: 0.58.0
+
+** Please be patient while the chart is being deployed **
+
+Watch the Prometheus Operator Deployment status using the command:
+
+kubectl get deploy -w --namespace monitoring -l app.kubernetes.io/name=kube-prometheus-operator,app.kubernetes.io/instance=eks-shared-2
+
+Watch the Prometheus StatefulSet status using the command:
+
+kubectl get sts -w --namespace monitoring -l app.kubernetes.io/name=kube-prometheus-prometheus,app.kubernetes.io/instance=eks-shared-2
+
+Prometheus can be accessed via port "9090" on the following DNS name from within your cluster:
+
+#eks-shared-2-kube-promethe-prometheus.monitoring.svc.cluster.local
+kube-prometheus-prometheus.monitoring.svc.cluster.local
+
+To access Prometheus from outside the cluster execute the following commands:
+
+echo "Prometheus URL: http://127.0.0.1:9090/"
+kubectl port-forward --namespace monitoring svc/eks-shared-2-kube-promethe-prometheus 9090:9090
+
+Watch the Alertmanager StatefulSet status using the command:
+
+kubectl get sts -w --namespace monitoring -l app.kubernetes.io/name=kube-prometheus-alertmanager,app.kubernetes.io/instance=eks-shared-2
+
+Alertmanager can be accessed via port "9093" on the following DNS name from within your cluster:
+
+eks-shared-2-kube-promethe-alertmanager.monitoring.svc.cluster.local
+
+To access Alertmanager from outside the cluster execute the following commands:
+
+echo "Alertmanager URL: http://127.0.0.1:9093/"
+kubectl port-forward --namespace monitoring svc/eks-shared-2-kube-promethe-alertmanager 9093:9093

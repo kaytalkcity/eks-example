@@ -1,0 +1,10 @@
+project: default
+source:
+  repoURL: 'https://github.com/kaytalkcity/eks-example.git'
+  path: grafana-deploy
+destination:
+  server: 'https://kubernetes.default.svc'
+syncPolicy:
+  automated:
+    prune: true
+    selfHeal: true
