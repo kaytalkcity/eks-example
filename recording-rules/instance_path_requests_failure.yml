@@ -1,7 +1,7 @@
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
-  name: firing-alerts-count
+  name: instance_path_requests_failure
   namespace: argocd
   labels:
     release: prometheus
