@@ -1,7 +1,7 @@
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
-  name: job-request-latency-seconds_count
+  name: job-request-latency-seconds-count
   namespace: argocd
   labels:
     release: prometheus
