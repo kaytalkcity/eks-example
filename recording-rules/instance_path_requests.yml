@@ -1,7 +1,7 @@
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
-  name: firing-alerts-count
+  name: instance_path_requests
   namespace: argocd
   labels:
     release: prometheus
@@ -10,5 +10,5 @@ spec:
     - name: AlertManager
       rules:
         # Aggregating up requests per second that has a path label:
-        - record: firing_alerts_count
+        - record: instance_path_requests
           expr: count(ALERTS{alertstate="firing"})
