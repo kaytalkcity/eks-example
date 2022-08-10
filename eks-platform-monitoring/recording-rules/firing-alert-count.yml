@@ -1,0 +1,16 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: firing-alerts-count
+  namespace: argocd
+  labels:
+    release: prometheus
+spec:
+  groups:
+    - name: AlertManager
+      rules:
+        - record: instance_path:requests:rate5m
+          expr: rate(requests_total{job="myjob"}[5m])
+        
+        - record: path:requests:rate5m
+          expr: sum without (instance)(instance_path:requests:rate5m{job="myjob"})
