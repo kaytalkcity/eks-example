@@ -95,6 +95,10 @@ spec:
               gnetId: 747
               revision: 1
               datasource: Prometheus
+            kubernetes-calico:
+              gnetId: 3244
+              revision: 0
+              datasource: Prometheus              
   project: default
   syncPolicy:
     automated:
