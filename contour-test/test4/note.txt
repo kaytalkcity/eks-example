@@ -1,0 +1,30 @@
+https://projectcontour.io/guides/cert-manager/
+Deploying HTTPS services with Contour and cert-manager
+
+Testing connectivity
+You must deploy at least one Ingress object before Contour can configure Envoy to serve traffic. Note that as a security feature, Contour does not configure Envoy to expose a port to the internet unless there’s a reason it should. For this tutorial we deploy a version of Kenneth Reitz’s httpbin.org service.
+
+To deploy httpbin to your cluster, run this command:
+
+$ kubectl apply -f https://projectcontour.io/examples/httpbin.yaml
+Check that the pods are running:
+
+$ kubectl get po -l app=httpbin
+NAME                       READY   STATUS    RESTARTS   AGE
+httpbin-85777b684b-8sqw5   1/1     Running   0          24s
+httpbin-85777b684b-pb26w   1/1     Running   0          24s
+httpbin-85777b684b-vpgwl   1/1     Running   0          24s
+
+
+ kubectl get ingress  -A
+NAMESPACE   NAME      CLASS     HOSTS   ADDRESS                                                                         PORTS   AGE
+default     httpbin   contour   *       a8b2cdaf0d7914904b3364f2fe844354-e205cc2ea026bb8e.elb.us-east-1.amazonaws.com   80      4m21s
+
+
+Access the site using the r53 url 
+
+
+
+You can delete the httpbin service now, or at any time, by running:
+
+$ kubectl delete -f https://projectcontour.io/examples/httpbin.yaml

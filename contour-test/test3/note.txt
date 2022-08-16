@@ -1,0 +1,23 @@
+Apply the new rate limited manifest:
+
+kubectl -n http-proxy apply -f rate-limit.yaml
+Wait a few moments and then fire up a while loop to connecting to the service and watch it hit the limit after a few hits.
+
+Note: You’ll need to hit CTRL-C to break the while loop.
+
+$ while true; do curl -s rate.$INGRESS_HOST | grep -E 'h1|rate' ; done
+
+<h1>Welcome to nginx!</h1>
+<h1>Welcome to nginx!</h1>
+<h1>Welcome to nginx!</h1>
+<h1>Welcome to nginx!</h1>
+<h1>Welcome to nginx!</h1>
+<h1>Welcome to nginx!</h1>
+local_rate_limited
+local_rate_limited
+local_rate_limited
+^C
+That’s it, rate limiting is enabled. This is incredibly useful if you have a service with known limitations or you want to restrict any one user from overwhelming the service.
+
+
+https://tanzu.vmware.com/developer/guides/service-routing-contour-to-ingress-and-beyond/

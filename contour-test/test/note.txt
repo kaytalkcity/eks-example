@@ -1,0 +1,25 @@
+Apply the new resource
+
+kubectl -n http-proxy apply -f weighted.yaml
+Test the weighting
+
+Note: It’s not clear in the documentation, but it appears that the weighting is applied per Envoy Pod, so it might not be exactly 10% for small test runs, but would statistically work out over time.
+
+$ while true; do curl -s weight.$INGRESS_HOST | grep h1 ; done
+<h1>Welcome to nginx!</h1>
+<h1>Welcome to nginx!</h1>
+<h1>Welcome to nginx!</h1>
+<h1>Welcome to nginx!</h1>
+<h1>Welcome to nginx!</h1>
+<h1>Welcome to nginx!</h1>
+<h1>Welcome to nginx!</h1>
+<h1>Welcome to nginx!</h1>
+<h1>Welcome to nginx!</h1>
+<h1>Welcome to nginx!</h1>
+<h1>Welcome to nginx!</h1>
+<h1>Welcome to nginx!</h1>
+<h1>Welcome to nginx!</h1>
+<html><body><h1>It works!</h1></body></html>
+
+
+https://tanzu.vmware.com/developer/guides/service-routing-contour-to-ingress-and-beyond/
