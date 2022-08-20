@@ -1,0 +1,14 @@
+# httpproxy-tls.yaml
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  name: httpbin-wide
+spec:
+  virtualhost:
+    fqdn: sanniolo.myinstance.com
+    tls:
+      secretName: httpbin-wide-tls
+  routes:
+    - services:
+        - name: httpbin
+          port: 80

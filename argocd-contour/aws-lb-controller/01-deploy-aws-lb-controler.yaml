@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: aws-load-balancer-controller
+spec:
+  destination:
+    name: ''
+    namespace: kube-system
+    server: 'https://kubernetes.default.svc'
+  source:
+    path: ''
+    repoURL: 'https://aws.github.io/eks-charts'
+    targetRevision: 1.4.4
+    chart: aws-load-balancer-controller
+    helm:
+      parameters:
+        - name: clusterName
+          value: eks-shared-2
+        - name: serviceAccount.create
+          value: 'false'
+        - name: serviceAccount.name
+          value: aws-load-balancer-controller
+  project: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

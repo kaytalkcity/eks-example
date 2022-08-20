@@ -1,0 +1,17 @@
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  name: root
+  namespace: projectcontour-roots
+spec:
+  virtualhost:
+    fqdn: dev.sanniolo.myinstance.com
+  routes:
+  - services:
+    - name: rootapp
+      port: 80
+  - services:
+    - name: secureapp
+      port: 80
+    conditions:
+      - prefix: /secure
