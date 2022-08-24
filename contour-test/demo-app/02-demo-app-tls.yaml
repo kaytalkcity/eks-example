@@ -1,0 +1,105 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: demo-app2
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app1
+  namespace: demo-app2
+spec:
+  selector:
+    app: app1
+  ports:
+    - port: 80
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: demo-app2
+  name: app1
+  labels:
+    app: app1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app1
+  template:
+    metadata:
+      labels:
+        app: app1
+    spec:
+      containers:
+      - name: app1
+        image: stevesloka/echo-server
+        command: ["echo-server"]
+        args:
+          - --echotext=This is APP1 Demo site!
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+          name: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app2
+  namespace: demo-app2
+spec:
+  selector:
+    app: app2
+  ports:
+    - port: 80
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: demo-app2
+  name: app2
+  labels:
+    app: app2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app2
+  template:
+    metadata:
+      labels:
+        app: app2
+    spec:
+      containers:
+      - name: app2
+        image: stevesloka/echo-server
+        command: ["echo-server"]
+        args:
+          - --echotext=This is APP2 Demo site!
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+          name: http
+---
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  name: demo-app2
+  namespace: demo-app2
+spec:
+  virtualhost:
+    fqdn: app2.sanniolo.myinstance.com
+    tls:
+      secretName: test-tls
+  routes:
+    - conditions:
+      - prefix: /
+      services:
+        - name: app1
+          port: 80
+          weight: 50
+        - name: app2
+          port: 80
+          weight: 50

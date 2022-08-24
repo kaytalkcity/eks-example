@@ -1,0 +1,15 @@
+$ while true; do curl -s weight.$INGRESS_HOST | grep h1 ; done
+<h1>Welcome to nginx!</h1>
+<h1>Welcome to nginx!</h1>
+<h1>Welcome to nginx!</h1>
+<h1>Welcome to nginx!</h1>
+<h1>Welcome to nginx!</h1>
+<h1>Welcome to nginx!</h1>
+<h1>Welcome to nginx!</h1>
+<h1>Welcome to nginx!</h1>
+<h1>Welcome to nginx!</h1>
+<h1>Welcome to nginx!</h1>
+<h1>Welcome to nginx!</h1>
+<h1>Welcome to nginx!</h1>
+<h1>Welcome to nginx!</h1>
+<html><body><h1>It works!</h1></body></html>
