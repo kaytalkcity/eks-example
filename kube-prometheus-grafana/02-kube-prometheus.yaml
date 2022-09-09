@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kube-prometheus
+  namespace: argocd
+spec:
+  destination:
+    name: ''
+    namespace: kube-prometheus
+    server: 'https://kubernetes.default.svc'
+  source:
+    path: ''
+    repoURL: 'https://prometheus-community.github.io/helm-charts'
+    targetRevision: 39.11.0
+    chart: kube-prometheus-stack
+    helm:
+      skipCrds: true
+      parameters:
+        - name: grafana.adminPassword
+          value: ''
+        - name: grafana.namespaceOverride
+          value: grafana
+  project: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
