@@ -9,7 +9,7 @@ spec:
   # Solo.io Istio distribution repository; required for Gloo Mesh Istio. You get the repo key from your Solo Account Representative.
   hub: us-docker.pkg.dev/gloo-mesh/istio-a9797008feb0
   # Any Solo.io Gloo Mesh Istio tag
-  tag: istio-1.13.4-solo-fips
+  tag: istio-1.13.4
   # Istio revision to create resources with
   revision: 1-13-4
 
