@@ -65,7 +65,7 @@ affinity: {}
 waitForResourcesTimeout: 300s
 
 istioNamespace: istio-system
-
+watchedNamespaces: "istio-system,istio-ingress,istio-eastwest"
 controlPlane:
   install: false
   spec: {}
